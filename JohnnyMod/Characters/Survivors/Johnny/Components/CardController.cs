@@ -27,6 +27,20 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private ProjectileSimple projSimp;
         private Rigidbody rigidBody;
+        private HurtBox targetHurtbox;
+        
+        private static readonly List<HurtBox> cardHurtBoxList = new List<HurtBox>();
+        public static IReadOnlyList<HurtBox> readOnlyCardHurtBoxList => cardHurtBoxList;
+
+        private void OnEnable()
+        {
+            cardHurtBoxList.Add(this.targetHurtbox);
+        }
+
+        private void OnDisable()
+        {
+            cardHurtBoxList.Remove(this.targetHurtbox);
+        }
 
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
@@ -112,6 +126,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         {
             rigidBody = this.GetComponent<Rigidbody>();
             projSimp = this.GetComponent<ProjectileSimple>();
+            this.targetHurtbox = this.transform.GetChild(0).GetChild(0).GetComponent<HurtBox>();
             this.GetComponent<TeamComponent>().teamIndex = TeamIndex.Neutral;
             this.GetComponent<TeamFilter>().teamIndex = TeamIndex.Neutral;
         }

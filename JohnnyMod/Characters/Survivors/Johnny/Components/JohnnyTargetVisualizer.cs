@@ -4,6 +4,7 @@ using System.Text;
 using HG;
 using JohnnyMod.Survivors.Johnny;
 using JohnnyMod.Survivors.Johnny.Components;
+using JohnnyMod.Survivors.Johnny.SkillStates;
 using RoR2;
 using RoR2.HudOverlay;
 using RoR2.UI;
@@ -12,7 +13,7 @@ using UnityEngine;
 namespace JohnnyMod.Characters.Survivors.Johnny.Components
 {
     [RequireComponent(typeof(PointViewer))]
-    public class HeadshotOverlay : MonoBehaviour
+    public class JohnnyTargetVisualizer : MonoBehaviour
     {
         public GameObject visualizerPrefab;
 
@@ -45,16 +46,12 @@ namespace JohnnyMod.Characters.Survivors.Johnny.Components
 
         public void Update()
         {
-            List<HurtBox> list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
-            if ((bool)hud && (bool)hud.targetMaster)
+            var list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
+            if (hud && hud.targetMaster && hud.targetBodyObject)
             {
-                TeamIndex teamIndex = hud.targetMaster.teamIndex;
-                IReadOnlyList<HurtBox> readOnlySniperTargetsList = HurtBox.readOnlySniperTargetsList;
-                int i = 0;
-                for (int count = readOnlySniperTargetsList.Count; i < count; i++)
+                foreach (var hurtBox in CardController.readOnlyCardHurtBoxList)
                 {
-                    HurtBox hurtBox = readOnlySniperTargetsList[i];
-                    if ((bool)hurtBox.healthComponent && hurtBox.healthComponent.alive && FriendlyFireManager.ShouldDirectHitProceed(hurtBox.healthComponent, teamIndex) && (object)hurtBox.healthComponent.body != hud.targetMaster.GetBody())
+                    if (hurtBox && hurtBox.healthComponent && hurtBox.healthComponent.alive && Vector3.Distance(hurtBox.transform.position, hud.targetBodyObject.transform.position) < MistFiner.range)
                     {
                         list.Add(hurtBox);
                     }
@@ -69,15 +66,14 @@ namespace JohnnyMod.Characters.Survivors.Johnny.Components
         {
             if (!hurtBoxToVisualizer.ContainsKey(hurtBox))
             {
-                GameObject value = pointViewer.AddElement(new PointViewer.AddElementRequest
+                hurtBoxToVisualizer.Add(hurtBox, pointViewer.AddElement(new PointViewer.AddElementRequest
                 {
-                    elementPrefab = hurtBox.healthComponent.GetComponent<CardController>() ? JohnnyAssets.cardVisualizer : visualizerPrefab,
+                    elementPrefab = visualizerPrefab,
                     target = hurtBox.transform,
                     targetWorldVerticalOffset = 0f,
                     targetWorldRadius = HurtBox.sniperTargetRadius,
                     scaleWithDistance = true
-                });
-                hurtBoxToVisualizer.Add(hurtBox, value);
+                }));
             }
             else
             {
@@ -98,15 +94,15 @@ namespace JohnnyMod.Characters.Survivors.Johnny.Components
             Util.Swap(ref displayedTargets, ref previousDisplayedTargets);
             displayedTargets.Clear();
             ListUtils.AddRange(displayedTargets, newDisplayedTargets);
-            List<HurtBox> list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
-            List<HurtBox> list2 = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
+            var list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
+            var list2 = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
             ListUtils.FindExclusiveEntriesByReference(displayedTargets, previousDisplayedTargets, list, list2);
-            foreach (HurtBox item in list2)
+            foreach (var item in list2)
             {
                 OnTargetLost(item);
             }
 
-            foreach (HurtBox item2 in list)
+            foreach (var item2 in list)
             {
                 OnTargetDiscovered(item2);
             }

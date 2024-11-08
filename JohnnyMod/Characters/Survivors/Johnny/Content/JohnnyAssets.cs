@@ -43,7 +43,8 @@ namespace JohnnyMod.Survivors.Johnny
         // ui stuff
         public static GameObject tensionGauge;
 
-        public static GameObject headshotOverlay, headshotVisualizer, cardVisualizer;
+        public static GameObject headshotOverlay, headshotVisualizer;
+        public static GameObject cardOverlay, cardVisualizer;
 
         public static void Init(AssetBundle assetBundle)
         {
@@ -69,32 +70,43 @@ namespace JohnnyMod.Survivors.Johnny
             tensionGauge = _assetBundle.LoadAsset<GameObject>("JohnnyTensionGauge");
             //tensionGauge.GetComponent<Animator>().runtimeAnimatorController = LegacyResourcesAPI.Load<RuntimeAnimatorController>("RoR2/DLC1/VoidSurvivor/animVoidSurvivorCorruptionUISimplified.controller");
 
-            headshotOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyHeadshotOverlay", false);
-            SniperTargetViewer viewer = headshotOverlay.GetComponentInChildren<SniperTargetViewer>();
-            headshotOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
+            CreateCardOverlay();
+            CreateHeadshotOverlay();
+        }
+
+        private static void CreateCardOverlay()
+        {
+            // card visual overlay
+            cardOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyCardOverlay", false);
+            SniperTargetViewer viewer = cardOverlay.GetComponentInChildren<SniperTargetViewer>();
+            cardOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
 
             cardVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyCardVisualizer", false);
             cardVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
+
             Image headshotImage = cardVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
             headshotImage.color = Color.red;
             headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/Captain/texCaptainCrosshairInner.png").WaitForCompletion();
 
-            headshotVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyHeadshotVisualizer", false);
-            headshotVisualizer.GetComponentInChildren<ObjectScaleCurve>().baseScale *= 5f;
-            headshotVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
-            headshotImage = headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
-            headshotImage.color = Color.red;
-            headshotImage.rectTransform.localScale = Vector3.one * 3f;
-            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/UI/texCrosshairDot.png").WaitForCompletion();
-
-            var newViewer = viewer.gameObject.AddComponent<HeadshotOverlay>();
-            newViewer.displayedTargets = viewer.displayedTargets;
-            newViewer.hud = viewer.hud;
-            newViewer.hurtBoxToVisualizer = viewer.hurtBoxToVisualizer;
-            newViewer.pointViewer = viewer.pointViewer;
-            newViewer.previousDisplayedTargets = viewer.previousDisplayedTargets;
-            newViewer.visualizerPrefab = headshotVisualizer;
+            viewer.gameObject.AddComponent<JohnnyTargetVisualizer>().visualizerPrefab = cardVisualizer;
             MonoBehaviour.Destroy(viewer);
+        }
+
+        private static void CreateHeadshotOverlay()
+        {
+            // card visual overlay
+            headshotOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyCardOverlay", false);
+            SniperTargetViewer viewer = headshotOverlay.GetComponentInChildren<SniperTargetViewer>();
+            headshotOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
+
+            headshotVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyHeadshotVisualizer", false);
+            headshotVisualizer.GetComponentInChildren<ObjectScaleCurve>().baseScale = Vector3.one * 0.05f;
+            headshotVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
+
+            var headshotImage = headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
+            headshotImage.color = Color.red;
+            headshotImage.rectTransform.localScale = Vector3.one * 5f;
+            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/UI/texCrosshairDot.png").WaitForCompletion();
         }
         #endregion
 

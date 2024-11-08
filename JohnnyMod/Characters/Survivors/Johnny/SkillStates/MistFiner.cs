@@ -155,7 +155,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     if (tier2) damage = 15f * damageStat; //m,ake this 2.5 :itwouldseemtroll:
                     //Mathf.Lerp(damage, damage * 2.5f, lvl2time)
 
-                    var bulletAttack = new BulletAttack
+                    new BulletAttack
                     {
                         bulletCount = 1,
                         aimVector = aimRay.direction,
@@ -175,7 +175,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         procChainMask = default,
                         procCoefficient = procCoefficient,
                         radius = 1,
-                        sniper = false,
+                        sniper = true,
                         stopperMask = LayerIndex.world.collisionMask,
                         //tracerEffectPrefab = JohnnyAssets.mistFinerZap,
                         weapon = null,
@@ -183,16 +183,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         spreadYawScale = 1f,
                         queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                         hitEffectPrefab = EntityStates.Commando.CommandoWeapon.FirePistol2.hitEffectPrefab,
-                    };
-                    bulletAttack.modifyOutgoingDamageCallback = delegate (BulletAttack _bulletAttack, ref BulletAttack.BulletHit hitInfo, DamageInfo damageInfo)
-                    {
-                        if (BulletAttack.IsSniperTargetHit(hitInfo))
-                        {
-                            damageInfo.damage *= 2f;
-                            damageInfo.damageColorIndex = DamageColorIndex.Sniper;
-                        }
-                    };
-                    bulletAttack.Fire();
+                    }.Fire();
 
                     EffectData effectData = new EffectData
                     {

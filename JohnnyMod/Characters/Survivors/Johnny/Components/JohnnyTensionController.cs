@@ -23,6 +23,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         public string overlayChildLocatorEntry = "CrosshairExtras";
 
         private OverlayController overlayController;
+        private OverlayController cardOverlayController;
         private HGTextMeshProUGUI uiTensionPerc;
         private float _tension;
         private float _prevTension;
@@ -35,14 +36,28 @@ namespace JohnnyMod.Survivors.Johnny.Components
         private void OnEnable()
         {
             overlayPrefab = JohnnyAssets.tensionGauge;
-            OverlayCreationParams overlayParams = new OverlayCreationParams
+            overlayController = HudOverlayManager.AddOverlay(gameObject, new OverlayCreationParams
             {
                 prefab = overlayPrefab,
                 childLocatorEntry = overlayChildLocatorEntry
-            };
-            overlayController = HudOverlayManager.AddOverlay(gameObject, overlayParams);
+            });
             overlayController.onInstanceAdded += OverlayController_onInstanceAdded;
             overlayController.onInstanceRemove += OverlayController_onInstanceRemove;
+
+            cardOverlayController = HudOverlayManager.AddOverlay(this.gameObject, new OverlayCreationParams
+            {
+                prefab = JohnnyAssets.cardOverlay,
+                childLocatorEntry = "ScopeContainer"
+            });
+        }
+
+        private void OnDisable()
+        {
+            if (this.cardOverlayController != null)
+            {
+                HudOverlayManager.RemoveOverlay(this.cardOverlayController);
+                this.cardOverlayController = null;
+            }
         }
 
         private void OverlayController_onInstanceRemove(OverlayController arg1, GameObject arg2)
