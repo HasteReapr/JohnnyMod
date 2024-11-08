@@ -88,25 +88,22 @@ namespace JohnnyMod.Survivors.Johnny
             headshotImage.color = Color.red;
             headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/Captain/texCaptainCrosshairInner.png").WaitForCompletion();
 
-            viewer.gameObject.AddComponent<JohnnyTargetVisualizer>().visualizerPrefab = cardVisualizer;
+            var visualizer = viewer.gameObject.AddComponent<JohnnyTargetVisualizer>();
+            visualizer.visualizerPrefab = cardVisualizer;
             MonoBehaviour.Destroy(viewer);
         }
 
         private static void CreateHeadshotOverlay()
         {
             // card visual overlay
-            headshotOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyCardOverlay", false);
+            headshotOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyHeadshotOverlay", false);
             SniperTargetViewer viewer = headshotOverlay.GetComponentInChildren<SniperTargetViewer>();
             headshotOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
 
             headshotVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyHeadshotVisualizer", false);
             headshotVisualizer.GetComponentInChildren<ObjectScaleCurve>().baseScale = Vector3.one * 0.05f;
             headshotVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
-
-            var headshotImage = headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
-            headshotImage.color = Color.red;
-            headshotImage.rectTransform.localScale = Vector3.one * 5f;
-            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/UI/texCrosshairDot.png").WaitForCompletion();
+            headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.red;
         }
         #endregion
 
@@ -173,7 +170,7 @@ namespace JohnnyMod.Survivors.Johnny
             var hurtBox = cardProjectile.transform.GetChild(0).GetChild(0).GetComponent<HurtBox>();
             hurtBox.hurtBoxGroup = HBG;
             hurtBox.isBullseye = true;
-            hurtBox.isSniperTarget = true;
+            hurtBox.isSniperTarget = false;
 
             HBG.mainHurtBox = hurtBox;
             HBG.bullseyeCount = 1;

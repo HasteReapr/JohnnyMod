@@ -175,7 +175,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         procChainMask = default,
                         procCoefficient = procCoefficient,
                         radius = 1,
-                        sniper = true,
+                        sniper = false,
                         stopperMask = LayerIndex.world.collisionMask,
                         //tracerEffectPrefab = JohnnyAssets.mistFinerZap,
                         weapon = null,
@@ -183,6 +183,15 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         spreadYawScale = 1f,
                         queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                         hitEffectPrefab = EntityStates.Commando.CommandoWeapon.FirePistol2.hitEffectPrefab,
+                        modifyOutgoingDamageCallback = delegate (BulletAttack bulletAttack, ref BulletAttack.BulletHit hitInfo, DamageInfo damageInfo)
+                        {
+                            if (BulletAttack.IsSniperTargetHit(in hitInfo))
+                            {
+                                damageInfo.damageType |= DamageType.BypassArmor;
+                                damageInfo.damageColorIndex = DamageColorIndex.Sniper;
+
+                            }
+                        }
                     }.Fire();
 
                     EffectData effectData = new EffectData

@@ -47,9 +47,9 @@ namespace JohnnyMod.Characters.Survivors.Johnny.Components
         public void Update()
         {
             var list = CollectionPool<HurtBox, List<HurtBox>>.RentCollection();
-            if (hud && hud.targetMaster && hud.targetBodyObject)
+            if (hud && hud.targetBodyObject)
             {
-                foreach (var hurtBox in CardController.readOnlyCardHurtBoxList)
+                foreach (var hurtBox in CardController.cardHurtBoxList)
                 {
                     if (hurtBox && hurtBox.healthComponent && hurtBox.healthComponent.alive && Vector3.Distance(hurtBox.transform.position, hud.targetBodyObject.transform.position) < MistFiner.range)
                     {
