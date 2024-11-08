@@ -43,7 +43,7 @@ namespace JohnnyMod.Survivors.Johnny
         // ui stuff
         public static GameObject tensionGauge;
 
-        public static GameObject headshotOverlay, headshotVisualizer;
+        public static GameObject headshotOverlay, headshotVisualizer, headshotVisualizer1, headshotVisualizer2;
         public static GameObject cardOverlay, cardVisualizer;
 
         public static void Init(AssetBundle assetBundle)
@@ -101,9 +101,21 @@ namespace JohnnyMod.Survivors.Johnny
             headshotOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
 
             headshotVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyHeadshotVisualizer", false);
-            headshotVisualizer.GetComponentInChildren<ObjectScaleCurve>().baseScale = Vector3.one * 0.05f;
             headshotVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
-            headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.red;
+
+            Image headshotImage = headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
+            headshotImage.color = Color.cyan;
+            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/DLC1/Railgunner/texCrosshairRailgunSniperCenterAlt.png").WaitForCompletion();
+
+            headshotVisualizer1 = headshotVisualizer.InstantiateClone("JohnnyHeadshot1Visualizer", false);
+            headshotVisualizer1.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.blue;
+
+            headshotVisualizer2 = headshotVisualizer.InstantiateClone("JohnnyHeadshot2Visualizer", false);
+            headshotVisualizer2.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.red;
+
+            var visualizer = viewer.gameObject.AddComponent<JohnnyHeadshotVisualizer>();
+            visualizer.visualizerPrefab = headshotVisualizer;
+            MonoBehaviour.Destroy(viewer);
         }
         #endregion
 

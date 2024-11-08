@@ -22,13 +22,15 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             bool canRC = tensionCTRL.tension >= 50;
 
             if (canRC && isAuthority &&
-                (inputBank.skill1.down) &&
-                (inputBank.skill2.down) &&
-                (inputBank.skill4.down))
+                inputBank.sprint.down &&
+                inputBank.skill3.down)
             {
+                inputBank.sprint.PushState(false);
                 inputBank.skill1.PushState(false);
                 inputBank.skill2.PushState(false);
+                inputBank.skill3.PushState(false);
                 inputBank.skill4.PushState(false);
+
                 tensionCTRL.AddTension(-50);
                 outer.SetState(new RomanCancel());
             }

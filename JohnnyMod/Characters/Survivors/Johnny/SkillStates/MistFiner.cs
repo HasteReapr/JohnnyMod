@@ -1,4 +1,5 @@
 ﻿using EntityStates;
+using JohnnyMod.Characters.Survivors.Johnny.Components;
 using JohnnyMod.Survivors.Johnny;
 using RoR2;
 using RoR2.HudOverlay;
@@ -34,6 +35,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
         private bool tier1 = false;
         private bool tier2 = false;
         private OverlayController overlayController;
+        private JohnnyHeadshotVisualizer headshotVisualizer;
 
         public override void OnEnter()
         {
@@ -66,6 +68,13 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                 prefab = JohnnyAssets.headshotOverlay,
                 childLocatorEntry = "ScopeContainer"
             });
+            overlayController.onInstanceAdded += this.OverlayController_onInstanceAdded;
+        }
+
+        private void OverlayController_onInstanceAdded(OverlayController arg1, GameObject arg2)
+        {
+            headshotVisualizer = arg2.GetComponentInChildren<JohnnyHeadshotVisualizer>();
+            headshotVisualizer.visualizerPrefab = JohnnyAssets.headshotVisualizer;
         }
 
         public override void OnExit()
@@ -73,6 +82,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             base.OnExit();
             if (this.overlayController != null)
             {
+                overlayController.onInstanceAdded -= this.OverlayController_onInstanceAdded;
                 HudOverlayManager.RemoveOverlay(this.overlayController);
                 this.overlayController = null;
             }
@@ -99,6 +109,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     scale = 1f,
                 };
                 EffectManager.SpawnEffect(JohnnyAssets.mistFinerLvlUp, effectData, transmit: true);
+                if (headshotVisualizer)
+                    headshotVisualizer.UpdatePrefab(JohnnyAssets.headshotVisualizer1);
             }
             if (fixedAge >= lvl2time && tier1 && !tier2)
             {
@@ -112,6 +124,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     scale = 1f,
                 };
                 EffectManager.SpawnEffect(JohnnyAssets.mistFinerLvlUp, effectData, transmit: true);
+                if (headshotVisualizer)
+                    headshotVisualizer.UpdatePrefab(JohnnyAssets.headshotVisualizer2);
             }
 
             if (fixedAge >= fireTime && inputBank.skill2.justReleased)

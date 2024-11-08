@@ -27,8 +27,12 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                 EntityStateMachine Weap2 = EntityStateMachine.FindByCustomName(gameObject, "Weapon2");
                 bodyState = Body.state;
 
-                bodyState.inputBank.sprint.PushState(false);
-                bodyState.inputBank.skill3.PushState(false);
+                inputBank.sprint.PushState(false);
+                inputBank.skill1.PushState(false);
+                inputBank.skill2.PushState(false);
+                inputBank.skill3.PushState(false);
+                inputBank.skill4.PushState(false);
+
                 skillLocator.secondary.RestockSteplike();
                 skillLocator.utility.RestockSteplike();
                 skillLocator.special.RestockSteplike();

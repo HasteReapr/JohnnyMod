@@ -420,9 +420,9 @@ namespace JohnnyMod.Survivors.Johnny
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.Deal)),
                 //setting this to the "weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon2", interruptPriority = EntityStates.InterruptPriority.Skill,
+                activationStateMachineName = "Weapon", interruptPriority = EntityStates.InterruptPriority.Skill,
 
-                baseMaxStock = 1,
+                baseMaxStock = 2,
                 baseRechargeInterval = 4f,
 
                 isCombatSkill = true,

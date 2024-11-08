@@ -1,10 +1,14 @@
-﻿using RoR2;
+﻿using HG;
+using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Networking;
+using R2API;
 
 namespace JohnnyMod.Survivors.Johnny.Components
 {
@@ -12,6 +16,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
     {
         public HealthComponent projectileHealthComponent;
         public JohnnyTensionController JohnnyStandee;
+        public GameObject Johnnybody;
 
         private bool gravityStop = false;
         private bool gravityStarted = false;
@@ -23,13 +28,46 @@ namespace JohnnyMod.Survivors.Johnny.Components
         private int boomCount = 0;
         private bool inAir = true;
 
+        private TeamIndex teamIndex = TeamIndex.Neutral;
+        private int origLayer, origLayerHitbox;
+
         private DamageInfo dmgInfo = null;
 
         private ProjectileSimple projSimp;
         private Rigidbody rigidBody;
         private HurtBox targetHurtbox;
         
-        public static  List<HurtBox> cardHurtBoxList = new List<HurtBox>();
+        public static List<HurtBox> cardHurtBoxList = new List<HurtBox>();
+
+        private void Start()
+        {
+            rigidBody = this.GetComponent<Rigidbody>();
+            projSimp = this.GetComponent<ProjectileSimple>();
+
+            this.origLayer = this.gameObject.layer;
+            this.origLayerHitbox = this.transform.GetChild(0).GetChild(0).gameObject.layer;
+
+            this.gameObject.layer = LayerIndex.fakeActor.intVal;
+
+            this.StartCoroutine(nameof(SwitchLayer));
+        }
+
+
+        private IEnumerator SwitchLayer()
+        {
+            yield return new WaitForFixedUpdate();
+            yield return new WaitForFixedUpdate();
+
+            if (this.TryGetComponent<HealthComponent>(out var hc))
+            {
+                IOnIncomingDamageServerReceiver value = this;
+                if (!hc.onIncomingDamageReceivers.Contains(value))
+                    ArrayUtils.ArrayAppend(ref hc.onIncomingDamageReceivers, in value);
+            }
+
+            this.gameObject.layer = origLayer;
+            this.transform.GetChild(0).GetChild(0).gameObject.layer = origLayerHitbox;
+        }
 
         private void OnEnable()
         {
@@ -96,6 +134,120 @@ namespace JohnnyMod.Survivors.Johnny.Components
             }
         }
 
+        public void PopCard(DamageInfo damageInfo)
+        {
+            if (dmgInfo == null)
+            {
+                // this is used later for the blast attacks, so make a copy
+                dmgInfo = new DamageInfo()
+                {
+                    attacker = damageInfo.attacker,
+                    canRejectForce = damageInfo.canRejectForce,
+                    crit = damageInfo.crit,
+                    damage = damageInfo.damage,
+                    delayedDamageSecondHalf = damageInfo.delayedDamageSecondHalf,
+                    damageColorIndex = damageInfo.damageColorIndex,
+                    damageType = damageInfo.damageType,
+                    dotIndex = damageInfo.dotIndex,
+                    force = damageInfo.force,
+                    inflictor = damageInfo.inflictor,
+                    position = damageInfo.position,
+                    procChainMask = damageInfo.procChainMask,
+                    procCoefficient = damageInfo.procCoefficient,
+                    rejected = damageInfo.rejected,
+                };
+
+                // modify incoming damage so its not all applied to the card
+                damageInfo.GetModdedDamageTypeHolder().CopyTo(dmgInfo);
+                damageInfo.procCoefficient = 0f;
+                damageInfo.force = Vector3.zero;
+
+                teamIndex = dmgInfo.attacker.GetComponent<TeamComponent>().teamIndex;
+            }
+            else if (startFuse && !popBabies)
+            {
+                dmgInfo.damage += damageInfo.damage * 0.5f;
+                dmgInfo.damageType |= damageInfo.damageType;
+                dmgInfo.GetModdedDamageTypeHolder().Add(damageInfo.GetModdedDamageTypeHolder());
+            }
+        }
+
+        public void Kaboom(DamageInfo damageInfo)
+        {
+            popBabies = true;
+
+            float dmgMult = inAir ? 2.5f : 2f;
+            var explode = new BlastAttack
+            {
+                baseDamage = damageInfo.damage * dmgMult,
+                radius = 15f,
+                baseForce = 0f,
+                crit = damageInfo.crit,
+                procCoefficient = 1f,
+                attacker = damageInfo.attacker,
+                inflictor = base.gameObject,
+                damageType = damageInfo.damageType | DamageType.Stun1s,
+                damageColorIndex = DamageColorIndex.WeakPoint,
+                teamIndex = teamIndex,
+                procChainMask = damageInfo.procChainMask,
+                falloffModel = BlastAttack.FalloffModel.Linear,
+                position = transform.position,
+            };
+            
+            dmgInfo.GetModdedDamageTypeHolder().CopyTo(explode);
+
+            explode.Fire();
+
+            //make the card stop so the baby pops dont fall down :pensive:
+            rigidBody.velocity = Vector3.zero;
+            rigidBody.mass = 0;
+            rigidBody.useGravity = false;
+
+            EffectData effectData = new EffectData
+            {
+                origin = transform.position,
+                scale = 1f
+            };
+            EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, effectData, transmit: true);
+            Util.PlaySound("PlayCardPop", gameObject);
+        }
+
+        public void BabyKaboom(DamageInfo damageInfo)
+        {
+            BlastAttack explode = new BlastAttack
+            {
+                baseDamage = damageInfo.damage * 0.1f,
+                radius = 10f,
+                baseForce = 0f,
+                crit = damageInfo.crit,
+                procCoefficient = 1,
+                attacker = damageInfo.attacker,
+                inflictor = base.gameObject,
+                damageType = damageInfo.damageType | DamageType.Stun1s | DamageType.LunarRuin,
+                damageColorIndex = DamageColorIndex.WeakPoint,
+                teamIndex = teamIndex,
+                procChainMask = damageInfo.procChainMask,
+                falloffModel = BlastAttack.FalloffModel.None,
+                position = transform.position + (Random.insideUnitSphere * 2f)
+            };
+            dmgInfo.GetModdedDamageTypeHolder().CopyTo(explode);
+
+            explode.Fire();
+
+            boomCount++;
+            babyBoomFuse = 0.05f;
+
+            if (boomCount > 10)
+            {
+                Destroy(base.gameObject);
+            }
+        }
+
+        public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
+        {
+            inAir = false;
+        }
+
         private void OnEnter()
         {
             gravityCD = 0.75f;
@@ -120,93 +272,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
             this.GetComponent<TeamComponent>().teamIndex = TeamIndex.Neutral;
             this.GetComponent<TeamFilter>().teamIndex = TeamIndex.Neutral;
-        }
-
-        private void Start()
-        {
-            rigidBody = this.GetComponent<Rigidbody>();
-            projSimp = this.GetComponent<ProjectileSimple>();
-            this.GetComponent<TeamComponent>().teamIndex = TeamIndex.Neutral;
-            this.GetComponent<TeamFilter>().teamIndex = TeamIndex.Neutral;
-        }
-
-        public void PopCard(DamageInfo damageInfo)
-        {
-            if (damageInfo.attacker && dmgInfo == null)
-            {
-                dmgInfo = damageInfo;
-                startFuse = true;
-            }
-        }
-
-        public void Kaboom(DamageInfo damageInfo)
-        {
-            float dmgMult = inAir ? 2.5f : 2f;
-
-            popBabies = true;
-            BlastAttack explode = new BlastAttack();
-            explode.baseDamage = damageInfo.damage * dmgMult;
-            explode.radius = 15f;
-            explode.baseForce = 0f;
-            explode.crit = damageInfo.crit;
-            explode.procCoefficient = damageInfo.procCoefficient;
-            explode.attacker = damageInfo.attacker;
-            explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType | DamageType.BypassArmor |  DamageType.Stun1s;
-            explode.damageColorIndex = DamageColorIndex.WeakPoint;
-            explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
-            explode.procChainMask = damageInfo.procChainMask;
-            explode.falloffModel = BlastAttack.FalloffModel.Linear;
-
-            explode.position = transform.position;
-
-            explode.Fire();
-
-            //make the card stop so the baby pops dont fall down :pensive:
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.mass = 0;
-            rigidBody.useGravity = false;
-
-            EffectData effectData = new EffectData
-            {
-                origin = transform.position,
-                scale = 1f
-            };
-            EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, effectData, transmit: true);
-            Util.PlaySound("PlayCardPop", gameObject);
-        }
-
-        public void BabyKaboom(DamageInfo damageInfo)
-        {
-            BlastAttack explode = new BlastAttack();
-            explode.baseDamage = damageInfo.damage * 0.1f;
-            explode.radius = 10f;
-            explode.crit = damageInfo.crit;
-            explode.procCoefficient = 1;
-            explode.attacker = damageInfo.attacker;
-            explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType | DamageType.Stun1s | DamageType.LunarRuin;
-            explode.damageColorIndex = DamageColorIndex.WeakPoint;
-            explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
-            explode.procChainMask = damageInfo.procChainMask;
-            explode.falloffModel = BlastAttack.FalloffModel.None;
-
-            explode.position = transform.position;
-
-            explode.Fire();
-
-            boomCount++;
-            babyBoomFuse = 0.05f;
-
-            if (boomCount > 10)
-            {
-                Destroy(base.gameObject);
-            }
-        }
-
-        public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
-        {
-            inAir = false;
         }
     }
 }
