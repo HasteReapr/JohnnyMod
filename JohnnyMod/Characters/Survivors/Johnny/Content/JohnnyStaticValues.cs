@@ -5,7 +5,7 @@ namespace JohnnyMod.Survivors.Johnny
 {
     public static class JohnnyStaticValues
     {
-        public const float swordDamageCoefficient = 1.7f;
+        public const float swordDamageCoefficient = 2f;
 
         public const float mistFinerDamageCoeffecient = 5.0f;
 

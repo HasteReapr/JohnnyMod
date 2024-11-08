@@ -15,14 +15,7 @@
 
   <ItemGroup>
     <None Remove=".gitignore" />
-    <None Remove="johnnyassets" />
-    <None Remove="JohnnyBank.bnk" />
     <None Remove="nuget.config" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="johnnyassets" />
-    <EmbeddedResource Include="JohnnyBank.bnk" />
   </ItemGroup>
 
 	<ItemGroup>

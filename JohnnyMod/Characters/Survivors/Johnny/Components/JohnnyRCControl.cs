@@ -41,12 +41,12 @@ namespace JohnnyMod.Survivors.Johnny.Components
             bool canRC = tensionCTRL.tension >= 50;
             
             if (canRC && hasAuthority && 
-                (PCMC.bodyInputs.skill1.down) &&
-                (PCMC.bodyInputs.skill2.down) &&
-                (PCMC.bodyInputs.skill4.down))
+                PCMC.bodyInputs.sprint.down &&
+                PCMC.bodyInputs.skill3.down)
             {
                 PCMC.bodyInputs.skill1.PushState(false);
                 PCMC.bodyInputs.skill2.PushState(false);
+                PCMC.bodyInputs.skill3.PushState(false);
                 PCMC.bodyInputs.skill4.PushState(false);
                 tensionCTRL.AddTension(-50);
                 JohnESM.state.outer.SetState(new RomanCancel());

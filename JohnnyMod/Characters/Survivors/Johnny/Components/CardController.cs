@@ -16,7 +16,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         private bool gravityStop = false;
         private bool gravityStarted = false;
         private bool startFuse = false;
-        private float gravityCD = 0.5f;
+        private float gravityCD = 0.75f;
         private float fuseTime = 0.1f;
         private float babyBoomFuse = 0.6f;
         private bool popBabies = false;
@@ -30,9 +30,9 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
-            if (damageInfo.attacker &&
-               (damageInfo.attacker.TryGetComponent<JohnnyTensionController>(out _) ||
-                damageInfo.attacker.TryGetComponent<CardController>(out _)) && damageInfo.inflictor != this.gameObject)
+            if (damageInfo.attacker && damageInfo.inflictor != this.gameObject &&
+               (damageInfo.attacker.GetComponent<JohnnyTensionController>() ||
+                damageInfo.attacker.GetComponent<CardController>()))
             {
                 PopCard(damageInfo);
             }
@@ -84,7 +84,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private void OnEnter()
         {
-            gravityCD = 0.5f;
+            gravityCD = 0.75f;
             gravityStarted = false;
             gravityStop = true;
 
@@ -112,6 +112,8 @@ namespace JohnnyMod.Survivors.Johnny.Components
         {
             rigidBody = this.GetComponent<Rigidbody>();
             projSimp = this.GetComponent<ProjectileSimple>();
+            this.GetComponent<TeamComponent>().teamIndex = TeamIndex.Neutral;
+            this.GetComponent<TeamFilter>().teamIndex = TeamIndex.Neutral;
         }
 
         public void PopCard(DamageInfo damageInfo)
@@ -125,17 +127,18 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void Kaboom(DamageInfo damageInfo)
         {
-            float dmgMult = inAir ? 1.75f : 1.25f;
+            float dmgMult = inAir ? 2.5f : 2f;
 
             popBabies = true;
             BlastAttack explode = new BlastAttack();
             explode.baseDamage = damageInfo.damage * dmgMult;
-            explode.radius = 10;
+            explode.radius = 15f;
+            explode.baseForce = 0f;
             explode.crit = damageInfo.crit;
             explode.procCoefficient = damageInfo.procCoefficient;
             explode.attacker = damageInfo.attacker;
             explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType;
+            explode.damageType = damageInfo.damageType | DamageType.BypassArmor |  DamageType.Stun1s;
             explode.damageColorIndex = DamageColorIndex.WeakPoint;
             explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
             explode.procChainMask = damageInfo.procChainMask;
@@ -162,13 +165,13 @@ namespace JohnnyMod.Survivors.Johnny.Components
         public void BabyKaboom(DamageInfo damageInfo)
         {
             BlastAttack explode = new BlastAttack();
-            explode.baseDamage = damageInfo.damage * 0.025f;
+            explode.baseDamage = damageInfo.damage * 0.1f;
             explode.radius = 10f;
             explode.crit = damageInfo.crit;
             explode.procCoefficient = 1;
             explode.attacker = damageInfo.attacker;
             explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType;
+            explode.damageType = damageInfo.damageType | DamageType.Stun1s | DamageType.LunarRuin;
             explode.damageColorIndex = DamageColorIndex.WeakPoint;
             explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
             explode.procChainMask = damageInfo.procChainMask;
