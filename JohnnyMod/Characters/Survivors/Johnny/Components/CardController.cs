@@ -156,9 +156,8 @@ namespace JohnnyMod.Survivors.Johnny.Components
                     procCoefficient = damageInfo.procCoefficient,
                     rejected = damageInfo.rejected,
                 };
-
                 // modify incoming damage so its not all applied to the card
-                damageInfo.GetModdedDamageTypeHolder().CopyTo(dmgInfo);
+                (damageInfo.GetModdedDamageTypeHolder() ?? new DamageAPI.ModdedDamageTypeHolder()).CopyTo(dmgInfo);
                 damageInfo.procCoefficient = 0f;
                 damageInfo.force = Vector3.zero;
 
@@ -168,7 +167,9 @@ namespace JohnnyMod.Survivors.Johnny.Components
             {
                 dmgInfo.damage += damageInfo.damage * 0.5f;
                 dmgInfo.damageType |= damageInfo.damageType;
-                dmgInfo.GetModdedDamageTypeHolder().Add(damageInfo.GetModdedDamageTypeHolder());
+                var holder = damageInfo.GetModdedDamageTypeHolder();
+                if (holder != null)
+                    dmgInfo.GetModdedDamageTypeHolder().Add(holder);
             }
         }
 
