@@ -78,7 +78,7 @@ namespace JohnnyMod.Modules.BaseStates
 
         protected virtual void PlayAttackAnimation()
         {
-            PlayCrossfade("Gesture, Override", "Slash" + (1 + swingIndex), playbackRateParam, duration, 0.05f);
+            PlayCrossfade("UpperBody, Override", "Swing" + (1 + swingIndex), playbackRateParam, duration, 0.05f);
         }
 
         public override void OnExit()

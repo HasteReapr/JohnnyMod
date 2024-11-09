@@ -173,6 +173,10 @@ namespace JohnnyMod.Survivors.Johnny
         private static void CreateCardProjectile()
         {
             cardProjectile = _assetBundle.LoadAsset<GameObject>("JohnCardWhite").InstantiateClone("JohnnyWhiteCardProj", true);
+            cardProjectile.GetComponent<Rigidbody>().mass = 0;
+            cardProjectile.GetComponent<CharacterBody>().BaseImportance = 5000;
+            cardProjectile.GetComponent<CharacterBody>().doNotReassignToTeamBasedCollisionLayer = true;
+            cardProjectile.gameObject.layer = LayerIndex.playerBody.intVal;
             cardProjectile.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage | CharacterBody.BodyFlags.Masterless | CharacterBody.BodyFlags.ImmuneToLava | CharacterBody.BodyFlags.IgnoreKnockback | CharacterBody.BodyFlags.ImmuneToVoidDeath;
 
             var cardController = cardProjectile.AddComponent<CardController>();
@@ -181,6 +185,7 @@ namespace JohnnyMod.Survivors.Johnny
             var HBG = cardProjectile.transform.GetChild(0).GetComponent<HurtBoxGroup>();
 
             var hurtBox = cardProjectile.transform.GetChild(0).GetChild(0).GetComponent<HurtBox>();
+            hurtBox.gameObject.layer = LayerIndex.entityPrecise.intVal;
             hurtBox.hurtBoxGroup = HBG;
             hurtBox.isBullseye = true;
             hurtBox.isSniperTarget = false;

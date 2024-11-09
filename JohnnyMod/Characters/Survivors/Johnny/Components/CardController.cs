@@ -162,7 +162,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
             blastAttack.baseDamage *= 0.1f;
             blastAttack.damageType |= DamageType.LunarRuin;
             blastAttack.falloffModel = BlastAttack.FalloffModel.None;
-            blastAttack.radius = 10f;
             blastAttack.Fire();
 
             boomCount++;
@@ -177,9 +176,8 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
-            if (damageInfo.attacker && damageInfo.inflictor == damageInfo.attacker &&
-               (damageInfo.attacker.GetComponent<JohnnyTensionController>() ||
-                damageInfo.attacker.GetComponent<CardController>()))
+            if (damageInfo.attacker && damageInfo.attacker.GetComponent<JohnnyTensionController>() &&
+               (damageInfo.attacker == damageInfo.inflictor || damageInfo.inflictor.GetComponent<CardController>()))
             {
                 PopCard(damageInfo);
             }
