@@ -192,6 +192,8 @@ namespace JohnnyMod.Survivors.Johnny
 
             HBG.mainHurtBox = hurtBox;
             HBG.bullseyeCount = 1;
+
+            cardController.targetHurtbox = hurtBox;
         }
 
         private static void CreateCardFromGhost()

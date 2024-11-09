@@ -16,6 +16,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
     {
         public HealthComponent projectileHealthComponent;
         public JohnnyTensionController JohnnyStandee;
+        public HurtBox targetHurtbox;
 
         private bool gravityStarted = false;
         private float gravityCD = 0.75f;
@@ -28,7 +29,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private ProjectileSimple projSimp;
         private Rigidbody rigidBody;
-        private HurtBox targetHurtbox;
         
         public static List<HurtBox> cardHurtBoxList = new List<HurtBox>();
 
@@ -40,7 +40,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private void OnEnable()
         {
-            this.targetHurtbox = this.transform.GetChild(0).GetChild(0).GetComponent<HurtBox>();
             cardHurtBoxList.Add(this.targetHurtbox);
         }
 
@@ -62,19 +61,21 @@ namespace JohnnyMod.Survivors.Johnny.Components
             }
 
             if (timeForKaboom)
+            {
                 fuseTime -= Time.fixedDeltaTime;
 
-            if (fuseTime <= 0)
-            {
-                if (boomCount == 0)
-                    Kaboom();
-                else
-                    BabyKaboom();
-            }
+                if (fuseTime <= 0)
+                {
+                    if (boomCount == 0)
+                        Kaboom();
+                    else
+                        BabyKaboom();
+                }
 
-            if (boomCount > 10)
-            {
-                Destroy(base.gameObject);
+                if (boomCount > 10)
+                {
+                    Destroy(base.gameObject);
+                }
             }
         }
 
@@ -147,6 +148,11 @@ namespace JohnnyMod.Survivors.Johnny.Components
             boomCount++;
             fuseTime = 0.6f;
 
+            // modify attack once for the little kabooms, dont modify in babyKaboom 10x like an idiot
+            blastAttack.baseDamage *= 0.1f;
+            blastAttack.damageType |= DamageType.LunarRuin;
+            blastAttack.falloffModel = BlastAttack.FalloffModel.None;
+
             EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, new EffectData
             {
                 origin = transform.position,
@@ -159,9 +165,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
         {
             var pos = transform.position + (Random.insideUnitSphere * 5f);
             blastAttack.position = pos;
-            blastAttack.baseDamage *= 0.1f;
-            blastAttack.damageType |= DamageType.LunarRuin;
-            blastAttack.falloffModel = BlastAttack.FalloffModel.None;
             blastAttack.Fire();
 
             boomCount++;
@@ -176,8 +179,9 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
+            // filter out non-johnny, and only accept certain inflictors so things like fireworks/frost relic dont pop it
             if (damageInfo.attacker && damageInfo.attacker.GetComponent<JohnnyTensionController>() &&
-               (damageInfo.attacker == damageInfo.inflictor || damageInfo.inflictor.GetComponent<CardController>()))
+               (!damageInfo.inflictor || damageInfo.inflictor == damageInfo.attacker || damageInfo.inflictor.GetComponent<CardController>()))
             {
                 PopCard(damageInfo);
             }
