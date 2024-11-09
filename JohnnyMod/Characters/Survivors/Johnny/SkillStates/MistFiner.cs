@@ -201,7 +201,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         {
                             if (BulletAttack.IsSniperTargetHit(in hitInfo))
                             {
-                                damageInfo.damageType |= DamageType.BypassArmor;
+                                damageInfo.damage *= 1.5f;
+                                damageInfo.damageType |= DamageType.BypassArmor | DamageType.WeakPointHit;
                                 damageInfo.damageColorIndex = DamageColorIndex.Sniper;
 
                             }

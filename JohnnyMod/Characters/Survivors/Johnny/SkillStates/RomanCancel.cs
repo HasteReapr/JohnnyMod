@@ -59,12 +59,12 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             if (NetworkServer.active)
             {
                 characterBody.AddTimedBuff(RoR2Content.Buffs.HiddenInvincibility, 0.3f);
-
+                Util.CleanseBody(characterBody, removeDebuffs: true, removeBuffs: false, removeCooldownBuffs: true, removeDots: true, removeStun: true, removeNearbyProjectiles: true);
                 //this is the roman cancel burst back, to blow enemies away
                 BlastAttack explode = new BlastAttack();
-                explode.baseDamage = 4 * damageStat;
-                explode.baseForce = 15;
-                explode.radius = 10f;
+                explode.baseDamage = 0f;
+                explode.baseForce = 40f;
+                explode.radius = 20f;
                 explode.crit = false;
                 explode.procCoefficient = 0;
                 explode.attacker = gameObject;
@@ -88,7 +88,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             base.FixedUpdate();
             if(fixedAge >= duration && isAuthority)
             {
-                outer.SetNextState(new RomanIdle());
+                outer.SetNextStateToMain();
                 // we reset the Body ESM to JohnnyMainState. This is done because we can't exactly nullify the inputs through the secondary IdleState
                 EntityStateMachine Body = EntityStateMachine.FindByCustomName(gameObject, "Body");
                 Body.SetState(bodyState); // we have the state copied and stored here, tho we should probably drop the inputs

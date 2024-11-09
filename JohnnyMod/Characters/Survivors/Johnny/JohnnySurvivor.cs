@@ -180,6 +180,7 @@ namespace JohnnyMod.Survivors.Johnny
         {
             AddHitboxes();
             bodyPrefab.AddComponent<JohnnyTensionController>();
+            bodyPrefab.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.SprintAnyDirection;
             //bodyPrefab.AddComponent<JohnnyRCControl>();
 
             if (displayPrefab) displayPrefab.AddComponent<MenuSoundComponent>();
@@ -309,7 +310,7 @@ namespace JohnnyMod.Survivors.Johnny
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.MistFiner)),
                 activationStateMachineName = "Weapon2",
-                interruptPriority = EntityStates.InterruptPriority.Pain,
+                interruptPriority = EntityStates.InterruptPriority.PrioritySkill,
 
                 baseRechargeInterval = 3f,
                 baseMaxStock = 1,
@@ -420,7 +421,8 @@ namespace JohnnyMod.Survivors.Johnny
 
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.Deal)),
                 //setting this to the "weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
-                activationStateMachineName = "Weapon", interruptPriority = EntityStates.InterruptPriority.Skill,
+                activationStateMachineName = "Weapon",
+                interruptPriority = EntityStates.InterruptPriority.Any,
 
                 baseMaxStock = 2,
                 baseRechargeInterval = 4f,

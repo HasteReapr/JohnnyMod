@@ -10,10 +10,12 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
     public class RomanIdle : Idle
     {
         private JohnnyTensionController tensionCTRL;
+        private PlayerCharacterMasterController pcmc;
         public override void OnEnter()
         {
             base.OnEnter();
             tensionCTRL = GetComponent<JohnnyTensionController>();
+            pcmc = characterBody.master.playerCharacterMasterController;
         }
 
         public override void FixedUpdate()
@@ -21,18 +23,25 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             base.FixedUpdate();
             bool canRC = tensionCTRL.tension >= 50;
 
-            if (canRC && isAuthority &&
-                inputBank.sprint.down &&
-                inputBank.skill3.down)
-            {
-                inputBank.sprint.PushState(false);
-                inputBank.skill1.PushState(false);
-                inputBank.skill2.PushState(false);
-                inputBank.skill3.PushState(false);
-                inputBank.skill4.PushState(false);
+            if (!isAuthority)
+                return;
 
-                tensionCTRL.AddTension(-50);
-                outer.SetState(new RomanCancel());
+            if (canRC)
+            {
+                if (inputBank.sprint.down && inputBank.skill3.down)
+                {
+                    tensionCTRL.AddTension(-50);
+                    outer.SetState(new RomanCancel());
+                }
+                else
+                {
+                    var player = pcmc ? pcmc.networkUser?.inputPlayer : null; 
+                    if (player != null && player.GetButton(18) && player.GetButton(9))
+                    {
+                        tensionCTRL.AddTension(-50);
+                        outer.SetState(new RomanCancel());
+                    }
+                }
             }
         }
 

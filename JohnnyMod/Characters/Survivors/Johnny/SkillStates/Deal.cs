@@ -43,10 +43,18 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             {
                 Fire();
             }
-            if(hasFired && fixedAge >= duration)
+
+            if (isAuthority)
             {
-                outer.SetNextStateToMain();
-                return;
+                if (inputBank && inputBank.skill1.down)
+                {
+                    outer.SetNextState(new SlashCombo());
+                }
+                else if (fixedAge >= duration)
+                {
+                    outer.SetNextStateToMain();
+                    return;
+                }
             }
         }
 
@@ -80,7 +88,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
 
         public override InterruptPriority GetMinimumInterruptPriority()
         {
-            return InterruptPriority.Pain;
+            return InterruptPriority.PrioritySkill;
         }
     }
 }

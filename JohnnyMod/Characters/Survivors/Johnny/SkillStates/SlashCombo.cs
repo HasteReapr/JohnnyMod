@@ -1,4 +1,5 @@
-﻿using JohnnyMod.Modules.BaseStates;
+﻿using EntityStates;
+using JohnnyMod.Modules.BaseStates;
 using RoR2;
 using UnityEngine;
 

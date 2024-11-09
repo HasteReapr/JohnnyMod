@@ -42,7 +42,7 @@ namespace JohnnyMod.Modules.BaseStates
         protected NetworkSoundEventIndex impactSound = NetworkSoundEventIndex.Invalid;
 
         public float duration;
-        private bool hasFired;
+        protected bool hasFired;
         private float hitPauseTimer;
         private OverlapAttack attack;
         protected bool inHitPause;
