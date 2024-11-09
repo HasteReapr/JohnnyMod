@@ -67,7 +67,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
         {
             base.FixedUpdate();
 
-            if (base.fixedAge > this.duration * 0.5f && inputBank && inputBank.skill4.down)
+            if (base.fixedAge > this.duration * 0.5f && skillLocator && skillLocator.special && inputBank && inputBank.skill4.down)
                 this.skillLocator.special.ExecuteIfReady();
         }
 

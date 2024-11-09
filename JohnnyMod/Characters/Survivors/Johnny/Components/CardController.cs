@@ -191,8 +191,12 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
         {
-            if (!impactInfo.collider.GetComponent<ProjectileController>())
-                inAir = false;
+            inAir = false;
+
+            // apply hurt state, its like stun but mostly helps with attack interruption good
+            var body = Util.HurtBoxColliderToBody(impactInfo.collider);
+            if (body && body.TryGetComponent<SetStateOnHurt>(out var setStateOnHurt))
+                setStateOnHurt.SetPain();
         }
         /*
         private void OnEnter()
