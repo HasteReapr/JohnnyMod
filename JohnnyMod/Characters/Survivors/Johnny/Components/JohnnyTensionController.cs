@@ -22,14 +22,16 @@ namespace JohnnyMod.Survivors.Johnny.Components
         [SerializeField]
         public string overlayChildLocatorEntry = "CrosshairExtras";
 
+        private const float MAX_TENSION = 100;
+        private const float TENSION_PER_HIT = 3; //we multiply this by the % max health of damage dealt. so if its 10% damage its 1 tension
+        private const float TENSION_PER_SECOND = 2f;
+
+        private float _tension;
+        private float _prevTension;
+
         private OverlayController overlayController;
         private OverlayController cardOverlayController;
         private HGTextMeshProUGUI uiTensionPerc;
-        private float _tension;
-        private float _prevTension;
-        private readonly float maxTension = 100;
-        private float tensionPerHit = 3; //we multiply this by the % max health of damage dealt. so if its 10% damage its 1 tension
-        private float tensionGainedPerSecond = 0.1f;
         private ChildLocator overlayInstanceChildLocator;
         private List<ImageFillController> fillUIList = new List<ImageFillController>();
 
@@ -75,7 +77,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         private void FixedUpdate()
         {
             //float num = (this.charBody.outOfCombat ? this.tensionGainedPerSecond : this.tensionGainedPerSecondInCombat);
-            AddTension(tensionGainedPerSecond * Time.fixedDeltaTime);
+            AddTension(TENSION_PER_SECOND * Time.fixedDeltaTime);
             UpdateUI();
         }
         
@@ -85,11 +87,11 @@ namespace JohnnyMod.Survivors.Johnny.Components
             {
                 if (imageFillCTRL.name == "Drain")
                 {
-                    imageFillCTRL.SetTValue(this._prevTension / this.maxTension);
+                    imageFillCTRL.SetTValue(this._prevTension / MAX_TENSION);
                 }
                 else
                 {
-                    imageFillCTRL.SetTValue(this.tension / this.maxTension);
+                    imageFillCTRL.SetTValue(this.tension / MAX_TENSION);
                 }
             }
             if (uiTensionPerc)
@@ -107,9 +109,13 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         public void OnDamageDealtServer(DamageReport damageReport)
         {
-            float num = damageReport.damageDealt / damageReport.victimBody.healthComponent.fullCombinedHealth; // the percent of damage dealt
-            float numClamped = Mathf.Clamp(num, 0.1f, 1f); // this heavily nerfs the amount of tension we get bc holy shit we were getting a lot of it
-            this.AddTension(numClamped * tensionPerHit); // num * tensionPerHit which will give us the % of damage we dealt * our tension gain. This means you have to fully kill 100 enemies to get 100% tension
+            var hc = damageReport.victimBody ? damageReport.victimBody.healthComponent : null;
+            if (hc != null && hc.fullCombinedHealth > 0f)
+            {
+                float num = damageReport.damageDealt / hc.fullCombinedHealth; // the percent of damage dealt
+                float numClamped = Mathf.Clamp(num, 0.1f, 1f); // this heavily nerfs the amount of tension we get bc holy shit we were getting a lot of it
+                this.AddTension(numClamped * TENSION_PER_HIT); // num * tensionPerHit which will give us the % of damage we dealt * our tension gain. This means you have to fully kill 100 enemies to get 100% tension
+            }
         }
 
         [Server]
@@ -120,7 +126,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
                 Debug.LogWarning("[Server] function 'System.Void JohnnyMod.JohnnyTensionController::AddTension(System.Single)' called on client.");
                 return;
             }
-            this.Network_tension = Mathf.Clamp(this.tension + amount, 0, maxTension);
+            this.Network_tension = Mathf.Clamp(this.tension + amount, 0, MAX_TENSION);
         }
 
         public float Network_tension
@@ -154,7 +160,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         {
             get
             {
-                return this._tension / maxTension;
+                return this._tension / MAX_TENSION;
             }
         }
 
