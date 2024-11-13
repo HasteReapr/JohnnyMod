@@ -285,7 +285,7 @@ namespace JohnnyMod.Survivors.Johnny
                     Johnny_PREFIX + "PRIMARY_SLASH_DESCRIPTION",
                     assetBundle.LoadAsset<Sprite>("texPrimaryIcon"),
                     new EntityStates.SerializableEntityStateType(typeof(SkillStates.SlashCombo)),
-                    "Weapon",
+                    "Weapon2",
                     true
                 ));
             //custom Skilldefs can have additional fields that you can set manually
@@ -422,7 +422,7 @@ namespace JohnnyMod.Survivors.Johnny
                 activationState = new EntityStates.SerializableEntityStateType(typeof(SkillStates.Deal)),
                 //setting this to the "weapon2" EntityStateMachine allows us to cast this skill at the same time primary, which is set to the "weapon" EntityStateMachine
                 activationStateMachineName = "Weapon",
-                interruptPriority = EntityStates.InterruptPriority.Any,
+                interruptPriority = EntityStates.InterruptPriority.Skill,
 
                 baseMaxStock = 2,
                 baseRechargeInterval = 4f,

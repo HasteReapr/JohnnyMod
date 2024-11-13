@@ -63,14 +63,6 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             base.OnHitEnemyAuthority();
         }
 
-        public override void FixedUpdate()
-        {
-            base.FixedUpdate();
-
-            if (base.fixedAge > this.duration * 0.5f && skillLocator && skillLocator.special && inputBank && inputBank.skill4.down)
-                this.skillLocator.special.ExecuteIfReady();
-        }
-
         public override void OnExit()
         {
             base.OnExit();

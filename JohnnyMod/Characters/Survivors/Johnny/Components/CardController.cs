@@ -50,7 +50,8 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private void FixedUpdate()
         {
-            this.projSimp.SetLifetime(projSimp.lifetime);
+            if (this.projSimp)
+                this.projSimp.SetLifetime(projSimp.lifetime);
 
             //Check for gravityStarted so we can turn this off as soon as it collides with something
             if (!gravityStarted)
@@ -81,11 +82,16 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private void StartGravity()
         {
-            projSimp.desiredForwardSpeed = 0;
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.isKinematic = false;
-            rigidBody.mass = 1;
-            rigidBody.useGravity = true;
+            if (projSimp)
+                projSimp.desiredForwardSpeed = 0;
+
+            if (rigidBody)
+            {
+                rigidBody.velocity = Vector3.zero;
+                rigidBody.isKinematic = false;
+                rigidBody.mass = 1;
+                rigidBody.useGravity = true;
+            }
             var quat = transform.rotation.eulerAngles;
             transform.rotation = Quaternion.Euler(90, quat.y, quat.z);
             this.gravityStarted = true;
@@ -93,10 +99,14 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private void StopGravity()
         {
-            //make the card stop so the baby pops dont fall down :pensive:
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.mass = 0;
-            rigidBody.useGravity = false;
+            if (rigidBody)
+            {
+                //make the card stop so the baby pops dont fall down :pensive:
+                rigidBody.velocity = Vector3.zero;
+                rigidBody.mass = 0;
+                rigidBody.useGravity = false;
+            }
+
             this.gravityStarted = true;
         }
 
@@ -123,13 +133,16 @@ namespace JohnnyMod.Survivors.Johnny.Components
                 };
                 (damageInfo.GetModdedDamageTypeHolder() ?? new DamageAPI.ModdedDamageTypeHolder()).CopyTo(blastAttack);
 
-                this.timeForKaboom = true;
-                this.projectileHealthComponent.Suicide();
                 StopGravity();
+
+                this.timeForKaboom = true;
+
+                if (this.projectileHealthComponent)
+                    this.projectileHealthComponent.Suicide();
             }
             else if (boomCount == 0)
             {
-                blastAttack.baseDamage += damageInfo.damage * 0.5f;
+                blastAttack.baseDamage += damageInfo.damage * 0.25f;
                 blastAttack.damageType |= damageInfo.damageType;
                 blastAttack.crit |= damageInfo.crit;
 
@@ -149,8 +162,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
             fuseTime = 0.6f;
 
             // modify attack once for the little kabooms, dont modify in babyKaboom 10x like an idiot
-            blastAttack.baseDamage *= 0.1f;
-            blastAttack.damageType |= DamageType.LunarRuin;
+            blastAttack.baseDamage *= 0.05f;
             blastAttack.falloffModel = BlastAttack.FalloffModel.None;
 
             EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, new EffectData
@@ -180,7 +192,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
         public void OnIncomingDamageServer(DamageInfo damageInfo)
         {
             // filter out non-johnny, and only accept certain inflictors so things like fireworks/frost relic dont pop it
-            if (damageInfo.attacker && damageInfo.attacker.GetComponent<JohnnyTensionController>() &&
+            if (damageInfo.attacker && damageInfo.attacker.GetComponent<JohnnyTensionController>() && damageInfo.inflictor != this.gameObject &&
                (!damageInfo.inflictor || damageInfo.inflictor == damageInfo.attacker || damageInfo.inflictor.GetComponent<CardController>()))
             {
                 PopCard(damageInfo);

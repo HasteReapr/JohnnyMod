@@ -44,13 +44,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                 Fire();
             }
 
-            if (isAuthority)
-            {
-                if (skillLocator && skillLocator.primary && inputBank && inputBank.skill1.down)
-                    skillLocator.primary.ExecuteIfReady();
-                else if (fixedAge >= duration)
-                    outer.SetNextStateToMain();
-            }
+            if (isAuthority && fixedAge >= duration)
+                outer.SetNextStateToMain();
         }
 
         private void Fire()

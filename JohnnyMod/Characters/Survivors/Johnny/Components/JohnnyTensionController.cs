@@ -24,7 +24,7 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
         private const float MAX_TENSION = 100;
         private const float TENSION_PER_HIT = 3; //we multiply this by the % max health of damage dealt. so if its 10% damage its 1 tension
-        private const float TENSION_PER_SECOND = 2f;
+        private const float TENSION_PER_SECOND = 0.5f;
 
         private float _tension;
         private float _prevTension;
