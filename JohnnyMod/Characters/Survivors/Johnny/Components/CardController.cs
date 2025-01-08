@@ -131,7 +131,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
                     falloffModel = BlastAttack.FalloffModel.Linear,
                     position = transform.position,
                 };
-                (damageInfo.GetModdedDamageTypeHolder() ?? new DamageAPI.ModdedDamageTypeHolder()).CopyTo(blastAttack);
 
                 StopGravity();
 
@@ -145,10 +144,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
                 blastAttack.baseDamage += damageInfo.damage * 0.25f;
                 blastAttack.damageType |= damageInfo.damageType;
                 blastAttack.crit |= damageInfo.crit;
-
-                var holder = damageInfo.GetModdedDamageTypeHolder();
-                if (holder != null)
-                    blastAttack.GetModdedDamageTypeHolder().Add(holder);
             }
         }
 
