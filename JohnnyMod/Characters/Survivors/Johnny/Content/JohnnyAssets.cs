@@ -45,6 +45,8 @@ namespace JohnnyMod.Survivors.Johnny
 
         public static GameObject headshotOverlay, headshotVisualizer, headshotVisualizer1, headshotVisualizer2;
         public static GameObject cardOverlay, cardVisualizer;
+      
+        //I need to add this comment so I can push to github and gaurentee its the most recent
 
         public static void Init(AssetBundle assetBundle)
         {
