@@ -36,9 +36,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             }
             if (this.hurtboxGroup)
             {
-                HurtBoxGroup hbg = this.hurtboxGroup;
-                int hbDeactivatorCounter = hbg.hurtBoxesDeactivatorCounter + 1;
-                hbg.hurtBoxesDeactivatorCounter = hbDeactivatorCounter;
+                this.hurtboxGroup.hurtBoxesDeactivatorCounter += 1;
             }
             this.blinkVector = this.GetBlinkVector();
 
@@ -70,9 +68,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             }
             if (this.hurtboxGroup)
             {
-                HurtBoxGroup hurtBoxGroup = this.hurtboxGroup;
-                int hurtBoxesDeactivatorCounter = hurtBoxGroup.hurtBoxesDeactivatorCounter - 1;
-                hurtBoxGroup.hurtBoxesDeactivatorCounter = hurtBoxesDeactivatorCounter;
+                this.hurtboxGroup.hurtBoxesDeactivatorCounter -= 1;
             }
             if (base.characterMotor)
             {

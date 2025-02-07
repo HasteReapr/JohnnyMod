@@ -1,10 +1,14 @@
-﻿using RoR2;
+﻿using HG;
+using RoR2;
 using RoR2.Orbs;
 using RoR2.Projectile;
+using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
 using UnityEngine;
 using UnityEngine.Networking;
+using R2API;
 
 namespace JohnnyMod.Survivors.Johnny.Components
 {
@@ -12,79 +16,199 @@ namespace JohnnyMod.Survivors.Johnny.Components
     {
         public HealthComponent projectileHealthComponent;
         public JohnnyTensionController JohnnyStandee;
+        public HurtBox targetHurtbox;
 
-        private bool gravityStop = false;
         private bool gravityStarted = false;
-        private bool startFuse = false;
-        private float gravityCD = 0.5f;
+        private float gravityCD = 0.75f;
         private float fuseTime = 0.1f;
-        private float babyBoomFuse = 0.6f;
-        private bool popBabies = false;
+        private bool timeForKaboom = false;
         private int boomCount = 0;
         private bool inAir = true;
 
-        private DamageInfo dmgInfo = null;
+        private BlastAttack blastAttack = null;
 
         private ProjectileSimple projSimp;
         private Rigidbody rigidBody;
+        
+        public static List<HurtBox> cardHurtBoxList = new List<HurtBox>();
 
-        public void OnIncomingDamageServer(DamageInfo damageInfo)
+        private void Start()
         {
-            if (damageInfo.attacker &&
-               (damageInfo.attacker.TryGetComponent<JohnnyTensionController>(out _) ||
-                damageInfo.attacker.TryGetComponent<CardController>(out _)) && damageInfo.inflictor != this.gameObject)
-            {
-                PopCard(damageInfo);
-            }
-            else damageInfo.rejected = true;
+            rigidBody = this.GetComponent<Rigidbody>();
+            projSimp = this.GetComponent<ProjectileSimple>();
+        }
+
+        private void OnEnable()
+        {
+            cardHurtBoxList.Add(this.targetHurtbox);
+        }
+
+        private void OnDisable()
+        {
+            cardHurtBoxList.Remove(this.targetHurtbox);
         }
 
         private void FixedUpdate()
         {
-            gravityCD -= Time.fixedDeltaTime;
+            if (this.projSimp)
+                this.projSimp.SetLifetime(projSimp.lifetime);
 
             //Check for gravityStarted so we can turn this off as soon as it collides with something
-            if(gravityCD <= 0 && !gravityStarted)
+            if (!gravityStarted)
             {
-                gravityStop = true;
+                gravityCD -= Time.fixedDeltaTime;
+                if (gravityCD <= 0f)
+                    StartGravity();
             }
 
-            if (gravityStop && !gravityStarted && !startFuse)
+            if (timeForKaboom)
             {
+                fuseTime -= Time.fixedDeltaTime;
+
+                if (fuseTime <= 0)
+                {
+                    if (boomCount == 0)
+                        Kaboom();
+                    else
+                        BabyKaboom();
+                }
+
+                if (boomCount > 10)
+                {
+                    Destroy(base.gameObject);
+                }
+            }
+        }
+
+        private void StartGravity()
+        {
+            if (projSimp)
                 projSimp.desiredForwardSpeed = 0;
+
+            if (rigidBody)
+            {
                 rigidBody.velocity = Vector3.zero;
                 rigidBody.isKinematic = false;
                 rigidBody.mass = 1;
                 rigidBody.useGravity = true;
-                var quat = transform.rotation.eulerAngles;
-                transform.rotation = Quaternion.Euler(90, quat.y, quat.z);
-                this.gravityStarted = true;
+            }
+            var quat = transform.rotation.eulerAngles;
+            transform.rotation = Quaternion.Euler(90, quat.y, quat.z);
+            this.gravityStarted = true;
+        }
+
+        private void StopGravity()
+        {
+            if (rigidBody)
+            {
+                //make the card stop so the baby pops dont fall down :pensive:
+                rigidBody.velocity = Vector3.zero;
+                rigidBody.mass = 0;
+                rigidBody.useGravity = false;
             }
 
-            if (startFuse)
-            {
-                fuseTime -= Time.fixedDeltaTime;
-            }
+            this.gravityStarted = true;
+        }
 
-            if (popBabies)
+        public void PopCard(DamageInfo damageInfo)
+        {
+            if (blastAttack == null)
             {
-                babyBoomFuse -= Time.fixedDeltaTime;
-            }
+                // this is used later for the blast attacks, so make a copy
+                blastAttack = new BlastAttack
+                {
+                    baseDamage = damageInfo.damage,
+                    radius = 15f,
+                    baseForce = 0f,
+                    crit = damageInfo.crit,
+                    procCoefficient = 1f,
+                    attacker = damageInfo.attacker,
+                    inflictor = base.gameObject,
+                    damageType = damageInfo.damageType | DamageType.Stun1s,
+                    damageColorIndex = DamageColorIndex.WeakPoint,
+                    teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex,
+                    procChainMask = damageInfo.procChainMask,
+                    falloffModel = BlastAttack.FalloffModel.Linear,
+                    position = transform.position,
+                };
 
-            if(fuseTime <= 0 && !popBabies)
-            {
-                Kaboom(dmgInfo);
+                StopGravity();
+
+                this.timeForKaboom = true;
+
+                if (this.projectileHealthComponent)
+                    this.projectileHealthComponent.Suicide();
             }
-            
-            if(babyBoomFuse <= 0 && popBabies)
+            else if (boomCount == 0)
             {
-                BabyKaboom(dmgInfo);
+                blastAttack.baseDamage += damageInfo.damage * 0.25f;
+                blastAttack.damageType |= damageInfo.damageType;
+                blastAttack.crit |= damageInfo.crit;
             }
         }
 
+        public void Kaboom()
+        {
+            blastAttack.baseDamage *= inAir ? 2f : 1.5f;
+            blastAttack.position = transform.position;
+            blastAttack.Fire();
+
+            boomCount++;
+            fuseTime = 0.6f;
+
+            // modify attack once for the little kabooms, dont modify in babyKaboom 10x like an idiot
+            blastAttack.baseDamage *= 0.05f;
+            blastAttack.falloffModel = BlastAttack.FalloffModel.None;
+
+            EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, new EffectData
+            {
+                origin = transform.position,
+                scale = 1f
+            }, transmit: true);
+            Util.PlaySound("PlayCardPop", gameObject);
+        }
+
+        public void BabyKaboom()
+        {
+            var pos = transform.position + (Random.insideUnitSphere * 5f);
+            blastAttack.position = pos;
+            blastAttack.Fire();
+
+            boomCount++;
+            fuseTime = 0.05f;
+
+            EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, new EffectData
+            {
+                origin = pos,
+                scale = 0.2f
+            }, transmit: true);
+        }
+
+        public void OnIncomingDamageServer(DamageInfo damageInfo)
+        {
+            // filter out non-johnny, and only accept certain inflictors so things like fireworks/frost relic dont pop it
+            if (damageInfo.attacker && damageInfo.attacker.GetComponent<JohnnyTensionController>() && damageInfo.inflictor != this.gameObject &&
+               (!damageInfo.inflictor || damageInfo.inflictor == damageInfo.attacker || damageInfo.inflictor.GetComponent<CardController>()))
+            {
+                PopCard(damageInfo);
+            }
+            
+            damageInfo.rejected = true;
+        }
+
+        public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
+        {
+            inAir = false;
+
+            // apply hurt state, its like stun but mostly helps with attack interruption good
+            var body = Util.HurtBoxColliderToBody(impactInfo.collider);
+            if (body && body.TryGetComponent<SetStateOnHurt>(out var setStateOnHurt))
+                setStateOnHurt.SetPain();
+        }
+        /*
         private void OnEnter()
         {
-            gravityCD = 0.5f;
+            gravityCD = 0.75f;
             gravityStarted = false;
             gravityStop = true;
 
@@ -106,90 +230,6 @@ namespace JohnnyMod.Survivors.Johnny.Components
 
             this.GetComponent<TeamComponent>().teamIndex = TeamIndex.Neutral;
             this.GetComponent<TeamFilter>().teamIndex = TeamIndex.Neutral;
-        }
-
-        private void Start()
-        {
-            rigidBody = this.GetComponent<Rigidbody>();
-            projSimp = this.GetComponent<ProjectileSimple>();
-        }
-
-        public void PopCard(DamageInfo damageInfo)
-        {
-            if (damageInfo.attacker && dmgInfo == null)
-            {
-                dmgInfo = damageInfo;
-                startFuse = true;
-            }
-        }
-
-        public void Kaboom(DamageInfo damageInfo)
-        {
-            float dmgMult = inAir ? 1.75f : 1.25f;
-
-            popBabies = true;
-            BlastAttack explode = new BlastAttack();
-            explode.baseDamage = damageInfo.damage * dmgMult;
-            explode.radius = 10;
-            explode.crit = damageInfo.crit;
-            explode.procCoefficient = damageInfo.procCoefficient;
-            explode.attacker = damageInfo.attacker;
-            explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType;
-            explode.damageColorIndex = DamageColorIndex.WeakPoint;
-            explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
-            explode.procChainMask = damageInfo.procChainMask;
-            explode.falloffModel = BlastAttack.FalloffModel.Linear;
-
-            explode.position = transform.position;
-
-            explode.Fire();
-
-            //make the card stop so the baby pops dont fall down :pensive:
-            rigidBody.velocity = Vector3.zero;
-            rigidBody.mass = 0;
-            rigidBody.useGravity = false;
-
-            EffectData effectData = new EffectData
-            {
-                origin = transform.position,
-                scale = 1f
-            };
-            EffectManager.SpawnEffect(JohnnyAssets.cardPopEffect, effectData, transmit: true);
-            Util.PlaySound("PlayCardPop", gameObject);
-        }
-
-        public void BabyKaboom(DamageInfo damageInfo)
-        {
-            BlastAttack explode = new BlastAttack();
-            explode.baseDamage = damageInfo.damage * 0.025f;
-            explode.radius = 10f;
-            explode.crit = damageInfo.crit;
-            explode.procCoefficient = 1;
-            explode.attacker = damageInfo.attacker;
-            explode.inflictor = base.gameObject;
-            explode.damageType = damageInfo.damageType;
-            explode.damageColorIndex = DamageColorIndex.WeakPoint;
-            explode.teamIndex = damageInfo.attacker.GetComponent<TeamComponent>().teamIndex;
-            explode.procChainMask = damageInfo.procChainMask;
-            explode.falloffModel = BlastAttack.FalloffModel.None;
-
-            explode.position = transform.position;
-
-            explode.Fire();
-
-            boomCount++;
-            babyBoomFuse = 0.05f;
-
-            if (boomCount > 10)
-            {
-                Destroy(base.gameObject);
-            }
-        }
-
-        public void OnProjectileImpact(ProjectileImpactInfo impactInfo)
-        {
-            inAir = false;
-        }
+        }*/
     }
 }

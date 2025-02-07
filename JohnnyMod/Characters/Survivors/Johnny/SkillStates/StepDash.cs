@@ -21,6 +21,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
         private Vector3 previousPosition;
         private Vector3 dashVector;
 
+        private OverlapAttack attack;
+
         public override void OnEnter()
         {
             base.OnEnter();
@@ -51,7 +53,6 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             {
                 characterBody.AddTimedBuff(JohnnyBuffs.armorBuff, 1 * duration);
             }
-
         }
 
         private void RecalculateRollSpeed()

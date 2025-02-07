@@ -1,9 +1,12 @@
 ﻿using EntityStates;
+using JohnnyMod.Characters.Survivors.Johnny.Components;
 using JohnnyMod.Survivors.Johnny;
 using RoR2;
+using RoR2.HudOverlay;
 using RoR2.Projectile;
 using RoR2.Skills;
 using UnityEngine;
+using UnityEngine.AddressableAssets;
 
 namespace JohnnyMod.Survivors.Johnny.SkillStates
 {
@@ -15,7 +18,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
         //delay on firing is usually ass-feeling. only set this if you know what you're doing
         public static float firePercentTime = 0.0f;
         public static float recoil = 3f;
-        public static float range = 32f;
+        public static float range = 75f;
         public static GameObject tracerEffectPrefab = LegacyResourcesAPI.Load<GameObject>("Prefabs/Effects/Tracers/TracerGoldGat");
 
         private float duration;
@@ -27,17 +30,19 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
         private ChildLocator childLoc;
 
         private float lvl1time = 1f;
-        private float lvl2time = 2.5f;
+        private float lvl2time = 2f;
 
         private bool tier1 = false;
         private bool tier2 = false;
+        private OverlayController overlayController;
+        private JohnnyHeadshotVisualizer headshotVisualizer;
 
         public override void OnEnter()
         {
             base.OnEnter();
             duration = baseDuration / attackSpeedStat;
             lvl1time = 1 / attackSpeedStat;
-            lvl2time = 3 / attackSpeedStat;
+            lvl2time = 2 / attackSpeedStat;
             fireTime = firePercentTime * duration;
             characterBody.SetAimTimer(2f);
             muzzleString = "KatanaHilt";
@@ -58,11 +63,29 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
             {
                 base.skillLocator.utility.SetSkillOverride(gameObject, JohnnyStaticValues.MistFinerDash, GenericSkill.SkillOverridePriority.Contextual);
             }
+            this.overlayController = HudOverlayManager.AddOverlay(this.gameObject, new OverlayCreationParams
+            {
+                prefab = JohnnyAssets.headshotOverlay,
+                childLocatorEntry = "ScopeContainer"
+            });
+            overlayController.onInstanceAdded += this.OverlayController_onInstanceAdded;
+        }
+
+        private void OverlayController_onInstanceAdded(OverlayController arg1, GameObject arg2)
+        {
+            headshotVisualizer = arg2.GetComponentInChildren<JohnnyHeadshotVisualizer>();
+            headshotVisualizer.visualizerPrefab = JohnnyAssets.headshotVisualizer;
         }
 
         public override void OnExit()
         {
             base.OnExit();
+            if (this.overlayController != null)
+            {
+                overlayController.onInstanceAdded -= this.OverlayController_onInstanceAdded;
+                HudOverlayManager.RemoveOverlay(this.overlayController);
+                this.overlayController = null;
+            }
             animator.SetBool("MistFiner.channeled", false);
             childLoc.FindChild("GhostHilt").gameObject.SetActive(true);
             childLoc.FindChild("KatanaHilt").gameObject.SetActive(false);
@@ -86,6 +109,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     scale = 1f,
                 };
                 EffectManager.SpawnEffect(JohnnyAssets.mistFinerLvlUp, effectData, transmit: true);
+                if (headshotVisualizer)
+                    headshotVisualizer.UpdatePrefab(JohnnyAssets.headshotVisualizer1);
             }
             if (fixedAge >= lvl2time && tier1 && !tier2)
             {
@@ -99,6 +124,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     scale = 1f,
                 };
                 EffectManager.SpawnEffect(JohnnyAssets.mistFinerLvlUp, effectData, transmit: true);
+                if (headshotVisualizer)
+                    headshotVisualizer.UpdatePrefab(JohnnyAssets.headshotVisualizer2);
             }
 
             if (fixedAge >= fireTime && inputBank.skill2.justReleased)
@@ -138,8 +165,8 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                     Ray aimRay = GetAimRay();
 
                     float damage = damageCoefficient * damageStat;
-                    if (tier1) damage *= 1.25f;
-                    if (tier2) damage *= 1.75f; //m,ake this 2.5 :itwouldseemtroll:
+                    if (tier1) damage = 10f * damageStat;
+                    if (tier2) damage = 15f * damageStat; //m,ake this 2.5 :itwouldseemtroll:
                     //Mathf.Lerp(damage, damage * 2.5f, lvl2time)
 
                     new BulletAttack
@@ -161,7 +188,7 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         smartCollision = true,
                         procChainMask = default,
                         procCoefficient = procCoefficient,
-                        radius = 0.9f,
+                        radius = 1,
                         sniper = false,
                         stopperMask = LayerIndex.world.collisionMask,
                         //tracerEffectPrefab = JohnnyAssets.mistFinerZap,
@@ -170,6 +197,16 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
                         spreadYawScale = 1f,
                         queryTriggerInteraction = QueryTriggerInteraction.UseGlobal,
                         hitEffectPrefab = EntityStates.Commando.CommandoWeapon.FirePistol2.hitEffectPrefab,
+                        modifyOutgoingDamageCallback = delegate (BulletAttack bulletAttack, ref BulletAttack.BulletHit hitInfo, DamageInfo damageInfo)
+                        {
+                            if (BulletAttack.IsSniperTargetHit(in hitInfo))
+                            {
+                                damageInfo.damage *= 1.5f;
+                                damageInfo.damageType |= DamageType.BypassArmor | DamageType.WeakPointHit;
+                                damageInfo.damageColorIndex = DamageColorIndex.Sniper;
+
+                            }
+                        }
                     }.Fire();
 
                     EffectData effectData = new EffectData

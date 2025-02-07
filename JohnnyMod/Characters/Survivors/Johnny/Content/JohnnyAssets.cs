@@ -7,6 +7,11 @@ using R2API;
 using UnityEngine.Networking;
 using JohnnyMod.Survivors.Johnny.Components;
 using RoR2.Audio;
+using UnityEngine.AddressableAssets;
+using RoR2.HudOverlay;
+using RoR2.UI;
+using UnityEngine.UI;
+using JohnnyMod.Characters.Survivors.Johnny.Components;
 
 namespace JohnnyMod.Survivors.Johnny
 {
@@ -38,6 +43,9 @@ namespace JohnnyMod.Survivors.Johnny
         // ui stuff
         public static GameObject tensionGauge;
 
+        public static GameObject headshotOverlay, headshotVisualizer, headshotVisualizer1, headshotVisualizer2;
+        public static GameObject cardOverlay, cardVisualizer;
+      
         //I need to add this comment so I can push to github and gaurentee its the most recent
 
         public static void Init(AssetBundle assetBundle)
@@ -63,6 +71,53 @@ namespace JohnnyMod.Survivors.Johnny
             rect.localScale = new Vector3(0.25f, 0.25f, 1f);*/
             tensionGauge = _assetBundle.LoadAsset<GameObject>("JohnnyTensionGauge");
             //tensionGauge.GetComponent<Animator>().runtimeAnimatorController = LegacyResourcesAPI.Load<RuntimeAnimatorController>("RoR2/DLC1/VoidSurvivor/animVoidSurvivorCorruptionUISimplified.controller");
+
+            CreateCardOverlay();
+            CreateHeadshotOverlay();
+        }
+
+        private static void CreateCardOverlay()
+        {
+            // card visual overlay
+            cardOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyCardOverlay", false);
+            SniperTargetViewer viewer = cardOverlay.GetComponentInChildren<SniperTargetViewer>();
+            cardOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
+
+            cardVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyCardVisualizer", false);
+            cardVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
+
+            Image headshotImage = cardVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
+            headshotImage.color = Color.red;
+            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/Base/Captain/texCaptainCrosshairInner.png").WaitForCompletion();
+
+            var visualizer = viewer.gameObject.AddComponent<JohnnyTargetVisualizer>();
+            visualizer.visualizerPrefab = cardVisualizer;
+            MonoBehaviour.Destroy(viewer);
+        }
+
+        private static void CreateHeadshotOverlay()
+        {
+            // card visual overlay
+            headshotOverlay = Addressables.LoadAssetAsync<GameObject>("RoR2/DLC1/Railgunner/RailgunnerScopeLightOverlay.prefab").WaitForCompletion().InstantiateClone("JohnnyHeadshotOverlay", false);
+            SniperTargetViewer viewer = headshotOverlay.GetComponentInChildren<SniperTargetViewer>();
+            headshotOverlay.transform.Find("ScopeOverlay").gameObject.SetActive(false);
+
+            headshotVisualizer = viewer.visualizerPrefab.InstantiateClone("JohnnyHeadshotVisualizer", false);
+            headshotVisualizer.transform.Find("Scaler/Outer").gameObject.SetActive(false);
+
+            Image headshotImage = headshotVisualizer.transform.Find("Scaler/Rectangle").GetComponent<Image>();
+            headshotImage.color = Color.cyan;
+            headshotImage.sprite = Addressables.LoadAssetAsync<Sprite>("RoR2/DLC1/Railgunner/texCrosshairRailgunSniperCenterAlt.png").WaitForCompletion();
+
+            headshotVisualizer1 = headshotVisualizer.InstantiateClone("JohnnyHeadshot1Visualizer", false);
+            headshotVisualizer1.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.blue;
+
+            headshotVisualizer2 = headshotVisualizer.InstantiateClone("JohnnyHeadshot2Visualizer", false);
+            headshotVisualizer2.transform.Find("Scaler/Rectangle").GetComponent<Image>().color = Color.red;
+
+            var visualizer = viewer.gameObject.AddComponent<JohnnyHeadshotVisualizer>();
+            visualizer.visualizerPrefab = headshotVisualizer;
+            MonoBehaviour.Destroy(viewer);
         }
         #endregion
 
@@ -120,6 +175,11 @@ namespace JohnnyMod.Survivors.Johnny
         private static void CreateCardProjectile()
         {
             cardProjectile = _assetBundle.LoadAsset<GameObject>("JohnCardWhite").InstantiateClone("JohnnyWhiteCardProj", true);
+            cardProjectile.GetComponent<Rigidbody>().mass = 0;
+            cardProjectile.GetComponent<CharacterBody>().BaseImportance = 5000;
+            cardProjectile.GetComponent<CharacterBody>().doNotReassignToTeamBasedCollisionLayer = true;
+            cardProjectile.gameObject.layer = LayerIndex.playerBody.intVal;
+            cardProjectile.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage | CharacterBody.BodyFlags.Masterless | CharacterBody.BodyFlags.ImmuneToLava | CharacterBody.BodyFlags.IgnoreKnockback | CharacterBody.BodyFlags.ImmuneToVoidDeath;
 
             var cardController = cardProjectile.AddComponent<CardController>();
             cardController.projectileHealthComponent = cardProjectile.GetComponent<HealthComponent>();
@@ -127,10 +187,15 @@ namespace JohnnyMod.Survivors.Johnny
             var HBG = cardProjectile.transform.GetChild(0).GetComponent<HurtBoxGroup>();
 
             var hurtBox = cardProjectile.transform.GetChild(0).GetChild(0).GetComponent<HurtBox>();
+            hurtBox.gameObject.layer = LayerIndex.entityPrecise.intVal;
             hurtBox.hurtBoxGroup = HBG;
+            hurtBox.isBullseye = true;
+            hurtBox.isSniperTarget = false;
 
             HBG.mainHurtBox = hurtBox;
             HBG.bullseyeCount = 1;
+
+            cardController.targetHurtbox = hurtBox;
         }
 
         private static void CreateCardFromGhost()
