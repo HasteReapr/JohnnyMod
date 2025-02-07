@@ -38,6 +38,8 @@ namespace JohnnyMod.Survivors.Johnny
         // ui stuff
         public static GameObject tensionGauge;
 
+        //I need to add this comment so I can push to github and gaurentee its the most recent
+
         public static void Init(AssetBundle assetBundle)
         {
 
