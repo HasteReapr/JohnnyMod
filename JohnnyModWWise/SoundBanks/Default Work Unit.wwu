@@ -6,6 +6,7 @@
 				<SoundBank Name="JohnnyBank" ID="{10AF812D-545F-4C99-9BF3-D98439165DEC}">
 					<ObjectInclusionList>
 						<ObjectRef Name="PlayWinVoice" ID="{068FE060-2205-42BA-A409-9E0BBBF8AF3E}" WorkUnitID="{8321CDF1-47A5-4BD5-9466-0883DD25205F}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="PlayLostVoice" ID="{5DD533BD-C63F-4343-9367-8448924C7928}" WorkUnitID="{8321CDF1-47A5-4BD5-9466-0883DD25205F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="PlaySheath" ID="{08328C26-B807-461C-B7B9-413A054F7D9C}" WorkUnitID="{8321CDF1-47A5-4BD5-9466-0883DD25205F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="PlayRC" ID="{09A463A6-A117-4638-8A15-485BF47CF9FC}" WorkUnitID="{8321CDF1-47A5-4BD5-9466-0883DD25205F}" Origin="Manual" Filter="7"/>
 						<ObjectRef Name="PlayHatFlick" ID="{B13C60EE-D1F5-46EC-90F3-3FAB5DB79C91}" WorkUnitID="{8321CDF1-47A5-4BD5-9466-0883DD25205F}" Origin="Manual" Filter="7"/>

@@ -50,9 +50,9 @@ namespace JohnnyMod.Modules.Characters
 
             bodyPrefab = Modules.Prefabs.CreateBodyPrefab(characterModelObject, bodyInfo);
             prefabCharacterBody = bodyPrefab.GetComponent<CharacterBody>();
-            
-            //CharacterDeathBehavior prefabCharacterDeathState = bodyPrefab.GetComponent<CharacterDeathBehavior>();
-            //prefabCharacterDeathState.deathState.stateType = characterDeathState;
+
+            CharacterDeathBehavior prefabCharacterDeathState = bodyPrefab.GetComponent<CharacterDeathBehavior>();
+            prefabCharacterDeathState.deathState.stateType = characterDeathState;
 
             prefabCharacterModel = Modules.Prefabs.SetupCharacterModel(bodyPrefab, customRendererInfos);
         }

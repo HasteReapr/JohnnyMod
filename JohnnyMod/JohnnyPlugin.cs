@@ -19,14 +19,10 @@ namespace JohnnyMod
     [BepInPlugin(MODUID, MODNAME, MODVERSION)]
     public class JohnnyPlugin : BaseUnityPlugin
     {
-        // if you do not change this, you are giving permission to deprecate the mod-
-        //  please change the names to your own stuff, thanks
-        //   this shouldn't even have to be said
         public const string MODUID = "com.HasteReapr.JohnnyMod";
         public const string MODNAME = "JohnnyMod";
-        public const string MODVERSION = "0.0.1";
+        public const string MODVERSION = "1.1.0";
 
-        // a prefix for name tokens to prevent conflicts- please capitalize all name tokens for convention
         public const string DEVELOPER_PREFIX = "HASTEREAPR";
 
         public static JohnnyPlugin instance;
@@ -35,19 +31,17 @@ namespace JohnnyMod
         {
             instance = this;
 
-            //easy to use logger
             Log.Init(Logger);
 
-            // used when you want to properly set up language folders
             Modules.Language.Init();
 
-            // character initialization
             new JohnnySurvivor().Initialize();
 
-            //hooks into various methods
             Hook();
 
-            // make a content pack and add it. this has to be last
+            //handles all of the emoteAPI compatability stuff
+            if (EmoteAPICompat.enabled) EmoteAPICompat.EmoteHook();
+
             new Modules.ContentPacks().Initialize();
         }
 
@@ -84,8 +78,6 @@ namespace JohnnyMod
                 if (arg2.playerInfos[x].bodyName.Equals("JohnnyBody"))
                     isJohgn = true;
             }
-
-
 
             if (isJohgn)
             {

@@ -40,6 +40,8 @@ namespace JohnnyMod.Survivors.Johnny
 
         internal static Shader hotpoo = Resources.Load<Shader>("Shaders/Deferred/HGStandard");
 
+        internal static GameObject emoteAPISkeleton;
+
         // ui stuff
         public static GameObject tensionGauge;
 
@@ -52,6 +54,8 @@ namespace JohnnyMod.Survivors.Johnny
         {
 
             _assetBundle = assetBundle;
+
+            assetBundle.LoadAsset<UnityEngine.GameObject>("JohnnyEmoteSkeleton.prefab");
 
             CreateEffects();
 
@@ -175,12 +179,7 @@ namespace JohnnyMod.Survivors.Johnny
         private static void CreateCardProjectile()
         {
             cardProjectile = _assetBundle.LoadAsset<GameObject>("JohnCardWhite").InstantiateClone("JohnnyWhiteCardProj", true);
-            cardProjectile.GetComponent<Rigidbody>().mass = 0;
-            cardProjectile.GetComponent<CharacterBody>().BaseImportance = 5000;
-            cardProjectile.GetComponent<CharacterBody>().doNotReassignToTeamBasedCollisionLayer = true;
-            cardProjectile.gameObject.layer = LayerIndex.playerBody.intVal;
-            cardProjectile.GetComponent<CharacterBody>().bodyFlags |= CharacterBody.BodyFlags.IgnoreFallDamage | CharacterBody.BodyFlags.Masterless | CharacterBody.BodyFlags.ImmuneToLava | CharacterBody.BodyFlags.IgnoreKnockback | CharacterBody.BodyFlags.ImmuneToVoidDeath;
-
+            
             var cardController = cardProjectile.AddComponent<CardController>();
             cardController.projectileHealthComponent = cardProjectile.GetComponent<HealthComponent>();
 

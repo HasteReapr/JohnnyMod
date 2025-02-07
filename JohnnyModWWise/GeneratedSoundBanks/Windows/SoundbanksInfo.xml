@@ -27,7 +27,7 @@
 				<GameParameter Id="3695994288" Name="Volume_Master"/>
 			</GameParameters>
 		</SoundBank>
-		<SoundBank Id="4059305719" Type="User" Language="SFX" Hash="{BB26EAA3-730B-398E-513D-5972748C09BE}">
+		<SoundBank Id="4059305719" Type="User" Language="SFX" Hash="{392D03FD-D07B-499E-0F0A-70CF630F592E}">
 			<ShortName>JohnnyBank</ShortName>
 			<Path>JohnnyBank.bnk</Path>
 			<Media>
@@ -50,6 +50,14 @@
 				<File Id="181430493" Language="SFX" Streaming="false" Location="Memory">
 					<ShortName>SE_BTL_JHN_07 Vault and Ensenga Jump.wav</ShortName>
 					<CachePath>SFX/SE_BTL_JHN_07 Vault and Ensenga Jump_8E324C96.wem</CachePath>
+				</File>
+				<File Id="205486343" Language="SFX" Streaming="false" Location="Memory">
+					<ShortName>didnt catch on.wav</ShortName>
+					<CachePath>SFX/didnt catch on_8E324C96.wem</CachePath>
+				</File>
+				<File Id="328804751" Language="SFX" Streaming="false" Location="Memory">
+					<ShortName>jokers just clown.wav</ShortName>
+					<CachePath>SFX/jokers just clown_8E324C96.wem</CachePath>
 				</File>
 				<File Id="332525918" Language="SFX" Streaming="false" Location="Memory">
 					<ShortName>handsome guy wins.wav</ShortName>
@@ -82,6 +90,14 @@
 				<File Id="638523529" Language="SFX" Streaming="false" Location="Memory">
 					<ShortName>make it snappy.wav</ShortName>
 					<CachePath>SFX/make it snappy_8E324C96.wem</CachePath>
+				</File>
+				<File Id="670517484" Language="SFX" Streaming="false" Location="Memory">
+					<ShortName>know whento fold.wav</ShortName>
+					<CachePath>SFX/know whento fold_8E324C96.wem</CachePath>
+				</File>
+				<File Id="678129752" Language="SFX" Streaming="false" Location="Memory">
+					<ShortName>caught in the odds.wav</ShortName>
+					<CachePath>SFX/caught in the odds_8E324C96.wem</CachePath>
 				</File>
 				<File Id="685031763" Language="SFX" Streaming="false" Location="Memory">
 					<ShortName>takin a gamble.wav</ShortName>
@@ -147,6 +163,19 @@
 						<MediaRef Id="181430493"/>
 					</MediaRefs>
 				</Event>
+				<Event Id="267913725" Name="PlayLostVoice">
+					<MediaRefs>
+						<MediaRef Id="205486343"/>
+						<MediaRef Id="328804751"/>
+						<MediaRef Id="670517484"/>
+						<MediaRef Id="678129752"/>
+					</MediaRefs>
+					<PluginRefs>
+						<ShareSets>
+							<PluginRef Id="1979096043"/>
+						</ShareSets>
+					</PluginRefs>
+				</Event>
 				<Event Id="3575152198" Name="PlayMistFiner">
 					<MediaRefs>
 						<MediaRef Id="23319721"/>
@@ -209,5 +238,5 @@
 			</GameParameters>
 		</SoundBank>
 	</SoundBanks>
-	<FileHash>{68AFA808-7965-6F6D-8A21-576F02E3166D}</FileHash>
+	<FileHash>{17D18A43-E014-41CE-70B4-A3DCF91ACB11}</FileHash>
 </SoundBanksInfo>

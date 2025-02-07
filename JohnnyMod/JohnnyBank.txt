@@ -1,5 +1,6 @@
 Event	ID	Name			Wwise Object Path	Notes
 	216919655	PlayMistFinerLvlUp			\Default Work Unit\PlayMistFinerLvlUp	
+	267913725	PlayLostVoice			\Default Work Unit\PlayLostVoice	
 	662274973	PlayDeal			\Default Work Unit\PlayDeal	
 	1044325701	PlayCoinFlip			\Default Work Unit\PlayCoinFlip	
 	1455317230	PlayRC			\Default Work Unit\PlayRC	
@@ -29,6 +30,8 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	141743249	do this with style	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\do this with style_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\do this with style		20268
 	169121957	lucky johnny gave a chance	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\lucky johnny gave a chance_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\lucky johnny gave a chance		54148
 	181430493	SE_BTL_JHN_07 Vault and Ensenga Jump	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\SE_BTL_JHN_07 Vault and Ensenga Jump_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\SFX\SE_BTL_JHN_07 Vault and Ensenga Jump		7226
+	205486343	didnt catch on	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\didnt catch on_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\LoseVoices\didnt catch on		25751
+	328804751	jokers just clown	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\jokers just clown_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\LoseVoices\jokers just clown		31507
 	332525918	handsome guy wins	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\handsome guy wins_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\WinVoices\handsome guy wins		44157
 	409897045	wanna be a hero	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\wanna be a hero_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\wanna be a hero		56096
 	452917109	SE_BTL_JHN_04 Deal	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\SE_BTL_JHN_04 Deal_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\SFX\SE_BTL_JHN_04 Deal		4799
@@ -37,6 +40,8 @@ In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
 	585405171	SE_BTL_JHN_Entry_1P_01 Hat Flick	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\SE_BTL_JHN_Entry_1P_01 Hat Flick_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\SFX\SE_BTL_JHN_Entry_1P_01 Hat Flick		13231
 	602182792	im perfect	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\im perfect_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\WinVoices\im perfect		56928
 	638523529	make it snappy	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\make it snappy_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\make it snappy		17490
+	670517484	know whento fold	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\know whento fold_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\LoseVoices\know whento fold		21390
+	678129752	caught in the odds	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\caught in the odds_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\LoseVoices\caught in the odds		28803
 	685031763	takin a gamble	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\takin a gamble_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\takin a gamble		47359
 	791020048	lady luck loves a gambler	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\lady luck loves a gambler_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\lady luck loves a gambler		48915
 	894107870	keep half the pop waiting	C:\Users\Bee_Snow\source\repos\JohnnyMod\JohnnyModWWise\.cache\Windows\SFX\keep half the pop waiting_8E324C96.wem		\Actor-Mixer Hierarchy\Default Work Unit\MasterMixer\SFX Mixxer\ImportSounds\Voices\SelectVoices\keep half the pop waiting		67102

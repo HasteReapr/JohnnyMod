@@ -20,7 +20,6 @@ namespace JohnnyMod.Survivors.Johnny.SkillStates
 
         public override void FixedUpdate()
         {
-            base.FixedUpdate();
             bool canRC = tensionCTRL.tension >= 50;
 
             if (!isAuthority)

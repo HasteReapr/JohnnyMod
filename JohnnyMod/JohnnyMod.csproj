@@ -29,9 +29,8 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="BepInEx.Core" Version="5.*" />
-		<PackageReference Include="R2API.DamageType" Version="1.1.4" />
+		<PackageReference Include="R2API.DamageType" Version="1.1.7" />
 		<PackageReference Include="RiskOfRain2.GameLibs" Version="1.3.6-r.0" />
-		<PackageReference Include="UnityEngine.Modules" Version="2021.3.33" />
 		<PackageReference Include="MMHOOK.RoR2" Version="2024.12.10">
 			<NoWarn>NU1701</NoWarn>
 		</PackageReference>
@@ -40,6 +39,12 @@
 		<PackageReference Include="R2API.RecalculateStats" Version="1.5.0" />
 		<PackageReference Include="R2API.Language" Version="1.*" />
 		<PackageReference Include="R2API.Sound" Version="1.*" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Reference Include="CustomEmotesAPI">
+	    <HintPath>..\..\AssassinMod\lib\CustomEmotesAPI.dll</HintPath>
+	  </Reference>
 	</ItemGroup>
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <Exec Command="REM follow the Building Your Mod page on the Johnnytutorial wiki for more information on this&#xD;&#xA;REM change this to your username (or add yours if you're working in a team or somethin)&#xD;&#xA;if &quot;$(Username)&quot; == &quot;Erikbir&quot; set build=true&#xD;&#xA;&#xD;&#xA;if defined build (&#xD;&#xA;&#xD;&#xA;REM copy the built mod to our Build folder&#xD;&#xA;copy &quot;$(TargetPath)&quot; &quot;$(ProjectDir)..\Build\plugins&quot;&#xD;&#xA;&#xD;&#xA;REM copy the assetbundle from our unity project to our Build folder&#xD;&#xA;REM change these paths to your (now hopefully renamed) folders&#xD;&#xA;if exist &quot;$(ProjectDir)..\JohnnyUnityProject\AssetBundles\myassetbundle&quot; (&#xD;&#xA;copy &quot;$(ProjectDir)..\JohnnyUnityProject\AssetBundles\myassetbundle&quot; &quot;$(ProjectDir)..\Build\plugins\AssetBundles&quot;&#xD;&#xA;)&#xD;&#xA;&#xD;&#xA;REM copy the whole Build\plugins folder into your r2modman profile. This mimics how r2modman will install your mod&#xD;&#xA;Xcopy /E /I /Y &quot;$(ProjectDir)..\Build\plugins&quot; &quot;E:\r2Profiles\Blinx Returns\BepInEx\plugins\rob-Johnnymod\&quot;&#xD;&#xA;)&#xD;&#xA;" />
